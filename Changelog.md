@@ -2,6 +2,12 @@
 Javascript Clipper Change Log
 ============================================================
 
+v6.1.3.2 (1 February 2014)
+* Update: Unnecessary closures removed around ref/out calls and major
+  speedup and code cleanliness achieved. Intersection operation speedup 
+  in newest Chrome is 2.3x (from 2530 ms to 1107 ms) and in newest 
+  Firefox 1.7x (from 7186 ms to 4164 ms).
+
 v6.1.3.1 (21 January 2014)
 * Fixed potential endless loop condition when adding open 
   paths to Clipper.
