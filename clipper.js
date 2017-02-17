@@ -34,8 +34,8 @@
 /*******************************************************************************
  *                                                                              *
  * Author    :  Timo                                                            *
- * Version   :  6.2.1.1                                                         *
- * Date      :  19 November 2016                                                 *
+ * Version   :  6.2.1.2                                                         *
+ * Date      :  27 November 2016                                                 *
  *                                                                              *
  * This is a translation of the C# Clipper library to Javascript.               *
  * Int128 struct of C# is implemented using JSBN of Tom Wu.                     *
@@ -66,15 +66,14 @@
 (function ()
 {
   "use strict";
-  //use_int32: When enabled 32bit ints are used instead of 64bit ints. This
-  //improve performance but coordinate values are limited to the range +/- 46340
-  var use_int32 = false;
-  //use_xyz: adds a Z member to IntPoint. Adds a minor cost to performance.
-  var use_xyz = false;
-  //UseLines: Enables open path clipping. Adds a very minor cost to performance.
-  var use_lines = true;
-
   var ClipperLib = {};
+
+  //UseLines: Enables open path clipping. Adds a very minor cost to performance.
+  ClipperLib.use_lines = true;
+
+  //ClipperLib.use_xyz: adds a Z member to IntPoint. Adds a minor cost to performance.
+  ClipperLib.use_xyz = false;
+
   var isNode = false;
   if (typeof module !== 'undefined' && module.exports)
   {
@@ -2031,7 +2030,7 @@
       alen = a.length;
     this.X = 0;
     this.Y = 0;
-    if (use_xyz)
+    if (ClipperLib.use_xyz)
     {
       this.Z = 0;
       if (alen == 3) // public IntPoint(cInt x, cInt y, cInt z = 0)
@@ -2071,7 +2070,7 @@
         this.Z = 0;
       }
     }
-    else // if (!use_xyz)
+    else // if (!ClipperLib.use_xyz)
     {
       if (alen == 2) // public IntPoint(cInt X, cInt Y)
       {
@@ -2124,7 +2123,7 @@
         return false;
   };
 */
-  if (use_xyz)
+  if (ClipperLib.use_xyz)
   {
     ClipperLib.IntPoint0 = function ()
     {
@@ -2157,7 +2156,7 @@
       this.Z = z;
     };
   }
-  else // if (!use_xyz)
+  else // if (!ClipperLib.use_xyz)
   {
     ClipperLib.IntPoint0 = function ()
     {
@@ -2358,16 +2357,8 @@
   ClipperLib.ClipperBase.Skip = -2;
   ClipperLib.ClipperBase.Unassigned = -1;
   ClipperLib.ClipperBase.tolerance = 1E-20;
-  if (use_int32)
-  {
-    ClipperLib.ClipperBase.loRange = 0x7FFF;
-    ClipperLib.ClipperBase.hiRange = 0x7FFF;
-  }
-  else
-  {
-    ClipperLib.ClipperBase.loRange = 47453132; // sqrt(2^53 -1)/2
-    ClipperLib.ClipperBase.hiRange = 4503599627370495; // sqrt(2^106 -1)/2
-  }
+	ClipperLib.ClipperBase.loRange = 47453132; // sqrt(2^53 -1)/2
+	ClipperLib.ClipperBase.hiRange = 4503599627370495; // sqrt(2^106 -1)/2
 
   ClipperLib.ClipperBase.near_zero = function (val)
   {
@@ -2516,6 +2507,7 @@
     //e.Curr = pt;
     e.Curr.X = pt.X;
     e.Curr.Y = pt.Y;
+    if(ClipperLib.use_xyz) e.Curr.Z = pt.Z;
     e.OutIdx = -1;
   };
   ClipperLib.ClipperBase.prototype.InitEdge2 = function (e, polyType)
@@ -2525,18 +2517,22 @@
       //e.Bot = e.Curr;
       e.Bot.X = e.Curr.X;
       e.Bot.Y = e.Curr.Y;
+    	if(ClipperLib.use_xyz) e.Bot.Z = e.Curr.Z;
       //e.Top = e.Next.Curr;
       e.Top.X = e.Next.Curr.X;
       e.Top.Y = e.Next.Curr.Y;
+      if(ClipperLib.use_xyz) e.Top.Z = e.Next.Curr.Z;
     }
     else
     {
       //e.Top = e.Curr;
       e.Top.X = e.Curr.X;
       e.Top.Y = e.Curr.Y;
+    	if(ClipperLib.use_xyz) e.Top.Z = e.Curr.Z;
       //e.Bot = e.Next.Curr;
       e.Bot.X = e.Next.Curr.X;
       e.Bot.Y = e.Next.Curr.Y;
+    	if(ClipperLib.use_xyz) e.Bot.Z = e.Next.Curr.Z;
     }
     this.SetDx(e);
     e.PolyTyp = polyType;
@@ -2696,7 +2692,7 @@
 
   ClipperLib.ClipperBase.prototype.AddPath = function (pg, polyType, Closed)
   {
-    if (use_lines)
+    if (ClipperLib.use_lines)
     {
       if (!Closed && polyType == ClipperLib.PolyType.ptClip)
         ClipperLib.Error("AddPath: Open paths must be subject.");
@@ -2724,6 +2720,7 @@
     //edges[1].Curr = pg[1];
     edges[1].Curr.X = pg[1].X;
     edges[1].Curr.Y = pg[1].Y;
+    if(ClipperLib.use_xyz) edges[1].Curr.Z = pg[1].Z;
 
     var $1 = {Value: this.m_UseFullRange};
     this.RangeTest(pg[0], $1);
@@ -2956,7 +2953,7 @@
     var tmp = e.Top.X;
     e.Top.X = e.Bot.X;
     e.Bot.X = tmp;
-    if (use_xyz)
+    if (ClipperLib.use_xyz)
     {
       tmp = e.Top.Z;
       e.Top.Z = e.Bot.Z;
@@ -2979,6 +2976,7 @@
         //e.Curr = e.Bot;
         e.Curr.X = e.Bot.X;
         e.Curr.Y = e.Bot.Y;
+        if(ClipperLib.use_xyz) e.Curr.Z = e.Bot.Z;
         e.Side = ClipperLib.EdgeSide.esLeft;
         e.OutIdx = ClipperLib.ClipperBase.Unassigned;
       }
@@ -2988,6 +2986,7 @@
         //e.Curr = e.Bot;
         e.Curr.X = e.Bot.X;
         e.Curr.Y = e.Bot.Y;
+        if(ClipperLib.use_xyz) e.Curr.Z = e.Bot.Z;
         e.Side = ClipperLib.EdgeSide.esRight;
         e.OutIdx = ClipperLib.ClipperBase.Unassigned;
       }
@@ -3026,7 +3025,7 @@
     this.ReverseSolution = (1 & InitOptions) !== 0;
     this.StrictlySimple = (2 & InitOptions) !== 0;
     this.PreserveCollinear = (4 & InitOptions) !== 0;
-    if (use_xyz)
+    if (ClipperLib.use_xyz)
     {
       this.ZFillFunction = null; // function (IntPoint vert1, IntPoint vert2, ref IntPoint intersectPt);
     }
@@ -3257,6 +3256,7 @@
     //j.OffPt = OffPt;
     j.OffPt.X = OffPt.X;
     j.OffPt.Y = OffPt.Y;
+		if(ClipperLib.use_xyz) j.OffPt.Z = OffPt.Z;
     this.m_Joins.push(j);
   };
   ClipperLib.Clipper.prototype.AddGhostJoin = function (Op, OffPt)
@@ -3266,10 +3266,11 @@
     //j.OffPt = OffPt;
     j.OffPt.X = OffPt.X;
     j.OffPt.Y = OffPt.Y;
+		if(ClipperLib.use_xyz) j.OffPt.Z = OffPt.Z;
     this.m_GhostJoins.push(j);
   };
-  if (use_xyz)
-  {
+  //if (ClipperLib.use_xyz)
+  //{
     ClipperLib.Clipper.prototype.SetZ = function (pt, e1, e2)
     {
       if (this.ZFillFunction !== null)
@@ -3284,7 +3285,7 @@
     };
 
     //------------------------------------------------------------------------------
-  }
+  //}
 
   ClipperLib.Clipper.prototype.InsertLocalMinimaIntoAEL = function (botY)
   {
@@ -3833,6 +3834,7 @@
       //newOp.Pt = pt;
       newOp.Pt.X = pt.X;
       newOp.Pt.Y = pt.Y;
+			if(ClipperLib.use_xyz) newOp.Pt.Z = pt.Z;
       newOp.Next = newOp;
       newOp.Prev = newOp;
       if (!outRec.IsOpen)
@@ -3855,6 +3857,7 @@
       //newOp.Pt = pt;
       newOp.Pt.X = pt.X;
       newOp.Pt.Y = pt.Y;
+      if(ClipperLib.use_xyz) newOp.Pt.Z = pt.Z;
       newOp.Next = op;
       newOp.Prev = op.Prev;
       newOp.Prev.Next = newOp;
@@ -3870,9 +3873,11 @@
     //pt1.Value = pt2.Value;
     pt1.Value.X = pt2.Value.X;
     pt1.Value.Y = pt2.Value.Y;
+    if(ClipperLib.use_xyz) pt1.Value.Z = pt2.Value.Z;
     //pt2.Value = tmp;
     pt2.Value.X = tmp.X;
     pt2.Value.Y = tmp.Y;
+		if(ClipperLib.use_xyz) pt2.Value.Z = tmp.Z;
   };
   ClipperLib.Clipper.prototype.HorzSegmentsOverlap = function (seg1a, seg1b, seg2a, seg2b)
 	{
@@ -4143,10 +4148,10 @@
     var e1Contributing = (e1.OutIdx >= 0);
     var e2Contributing = (e2.OutIdx >= 0);
 
-    if (use_xyz)
+    if (ClipperLib.use_xyz)
     	this.SetZ(pt, e1, e2);
 
-    if (use_lines)
+    if (ClipperLib.use_lines)
     {
       //if either edge is on an OPEN path ...
       if (e1.WindDelta === 0 || e2.WindDelta === 0)
@@ -4418,6 +4423,7 @@
     //    e.Curr = e.Bot;
     e.Curr.X = e.Bot.X;
     e.Curr.Y = e.Bot.Y;
+		if(ClipperLib.use_xyz) e.Curr.Z = e.Bot.Z;
     e.PrevInAEL = AelPrev;
     e.NextInAEL = AelNext;
     if (!ClipperLib.ClipperBase.IsHorizontal(e))
@@ -4660,6 +4666,7 @@
           //newNode.Pt = pt;
           newNode.Pt.X = pt.X;
           newNode.Pt.Y = pt.Y;
+          if(ClipperLib.use_xyz) newNode.Pt.Z = pt.Z;
           this.m_IntersectList.push(newNode);
           this.SwapPositionsInSEL(e, eNext);
           isModified = true;
@@ -4884,7 +4891,7 @@
           {
            	var ip = new ClipperLib.IntPoint(e.Curr);
 
-						if(use_xyz)
+						if(ClipperLib.use_xyz)
 						{
 							this.SetZ(ip, ePrev, e);
 						}
@@ -4946,7 +4953,6 @@
       return;
     }
     var eNext = e.NextInAEL;
-    var use_lines = true;
     while (eNext !== null && eNext != eMaxPair)
     {
       this.IntersectEdges(e, eNext, e.Top);
@@ -4964,7 +4970,7 @@
       this.DeleteFromAEL(e);
       this.DeleteFromAEL(eMaxPair);
     }
-    else if (use_lines && e.WindDelta === 0)
+    else if (ClipperLib.use_lines && e.WindDelta === 0)
     {
       if (e.OutIdx >= 0)
       {
@@ -5107,6 +5113,7 @@
     //result.Pt = outPt.Pt;
     result.Pt.X = outPt.Pt.X;
     result.Pt.Y = outPt.Pt.Y;
+		if(ClipperLib.use_xyz) result.Pt.Z = outPt.Pt.Z;
     result.Idx = outPt.Idx;
     if (InsertAfter)
     {
@@ -5179,6 +5186,7 @@
         //op1.Pt = Pt;
         op1.Pt.X = Pt.X;
         op1.Pt.Y = Pt.Y;
+        if(ClipperLib.use_xyz) op1.Pt.Z = Pt.Z;
         op1b = this.DupOutPt(op1, !DiscardLeft);
       }
     }
@@ -5196,6 +5204,7 @@
         //op1.Pt = Pt;
         op1.Pt.X = Pt.X;
         op1.Pt.Y = Pt.Y;
+				if(ClipperLib.use_xyz) op1.Pt.Z = Pt.Z;
         op1b = this.DupOutPt(op1, DiscardLeft);
       }
     }
@@ -5213,6 +5222,7 @@
         //op2.Pt = Pt;
         op2.Pt.X = Pt.X;
         op2.Pt.Y = Pt.Y;
+				if(ClipperLib.use_xyz) op2.Pt.Z = Pt.Z;
         op2b = this.DupOutPt(op2, !DiscardLeft);
       }
     }
@@ -5230,6 +5240,7 @@
         //op2.Pt = Pt;
         op2.Pt.X = Pt.X;
         op2.Pt.Y = Pt.Y;
+				if(ClipperLib.use_xyz) op2.Pt.Z = Pt.Z;
         op2b = this.DupOutPt(op2, DiscardLeft);
       }
     }
@@ -5342,6 +5353,7 @@
         //Pt = op1.Pt;
         Pt.X = op1.Pt.X;
         Pt.Y = op1.Pt.Y;
+        if(ClipperLib.use_xyz) Pt.Z = op1.Pt.Z;
         DiscardLeftSide = (op1.Pt.X > op1b.Pt.X);
       }
       else if (op2.Pt.X >= Left && op2.Pt.X <= Right)
@@ -5349,6 +5361,7 @@
         //Pt = op2.Pt;
         Pt.X = op2.Pt.X;
         Pt.Y = op2.Pt.Y;
+				if(ClipperLib.use_xyz) Pt.Z = op2.Pt.Z;
         DiscardLeftSide = (op2.Pt.X > op2b.Pt.X);
       }
       else if (op1b.Pt.X >= Left && op1b.Pt.X <= Right)
@@ -5356,6 +5369,7 @@
         //Pt = op1b.Pt;
         Pt.X = op1b.Pt.X;
         Pt.Y = op1b.Pt.Y;
+        if(ClipperLib.use_xyz) Pt.Z = op1b.Pt.Z;
         DiscardLeftSide = op1b.Pt.X > op1.Pt.X;
       }
       else
@@ -5363,6 +5377,7 @@
         //Pt = op2b.Pt;
         Pt.X = op2b.Pt.X;
         Pt.Y = op2b.Pt.Y;
+				if(ClipperLib.use_xyz) Pt.Z = op2b.Pt.Z;
         DiscardLeftSide = (op2b.Pt.X > op2.Pt.X);
       }
       j.OutPt1 = op1;

@@ -2,6 +2,13 @@
 Javascript Clipper Change Log
 ============================================================
 
+v6.2.1.2 (27 November 2016)
+* use_xyz directive changed to ClipperLib.use_xyz and use_lines 
+  directive changed to ClipperLib.use_lines, so they can be set
+  runtime.
+* use_int32 removed, because in Javascript there is no such integer.
+* When copying IntPoints, Z-member was missing when use_xyz is true.
+
 v6.2.1.1 (19 November 2016)
 * Line 3282: Changed ZFillFunction to this.ZFillFunction.
 
