@@ -2,6 +2,9 @@
 Javascript Clipper Change Log
 ============================================================
 
+v6.2.1.1 (19 November 2016)
+* Line 3282: Changed ZFillFunction to this.ZFillFunction.
+
 v6.2.1.0 (17 June 2016)
 * Updates from C# Clipper upto 6.2.1 Rev 482 (31 October 2014).
 

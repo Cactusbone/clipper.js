@@ -34,8 +34,8 @@
 /*******************************************************************************
  *                                                                              *
  * Author    :  Timo                                                            *
- * Version   :  6.2.1.0                                                         *
- * Date      :  17 June 2016                                                 *
+ * Version   :  6.2.1.1                                                         *
+ * Date      :  19 November 2016                                                 *
  *                                                                              *
  * This is a translation of the C# Clipper library to Javascript.               *
  * Int128 struct of C# is implemented using JSBN of Tom Wu.                     *
@@ -3279,7 +3279,7 @@
         else if (ClipperLib.IntPoint.op_Equality(pt, e1.Top)) pt.Z = e1.Top.Z;
         else if (ClipperLib.IntPoint.op_Equality(pt, e2.Bot)) pt.Z = e2.Bot.Z;
         else if (ClipperLib.IntPoint.op_Equality(pt, e2.Top)) pt.Z = e2.Top.Z;
-        else ZFillFunction(e1.Bot, e1.Top, e2.Bot, e2.Top, pt);
+        else this.ZFillFunction(e1.Bot, e1.Top, e2.Bot, e2.Top, pt);
       }
     };
 
