@@ -2,6 +2,13 @@
 Javascript Clipper Change Log
 ============================================================
 
+v6.1.3.1 (21 January 2014)
+* Fixed potential endless loop condition when adding open 
+  paths to Clipper.
+* Added PointInPolygon function.
+* Overloaded MinkowskiSum function to accommodate multi-contour 
+  paths.
+  
 v6.1.2.1 (15 December 2013)
 * Minor improvement to joining polygons.
 
