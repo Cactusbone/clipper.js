@@ -1,0 +1,12 @@
+{
+    "name": "clipper.js",
+    "version": "6.1.21",
+    "description": "Polygon and line clipping and offsetting library",
+    "author": "Angus Johnson",
+    "license": "http://www.boost.org/LICENSE_1_0.txt",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/Cactusbone/clipper.js.git"
+    },
+    "main": "./clipper.js"
+}
