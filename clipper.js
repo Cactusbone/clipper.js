@@ -1809,9 +1809,15 @@
 		else
 		{
 			var props = Object.getOwnPropertyNames(ce2.prototype);
-			for (var i = 0; i < props.length; i++)
-				if (typeof (Object.getOwnPropertyDescriptor(ce.prototype, props[i])) == 'undefined') Object.defineProperty(ce.prototype, props[i], Object.getOwnPropertyDescriptor(ce2.prototype, props[i]));
-			for (p in ce2)
+            for (var i = 0; i < props.length; i++) {
+                var propertyName = props[i];
+                if (typeof (Object.getOwnPropertyDescriptor(ce.prototype, propertyName)) == 'undefined') {
+                    var propertyDescriptor = Object.getOwnPropertyDescriptor(ce2.prototype, propertyName);
+                    if(propertyDescriptor)
+                        Object.defineProperty(ce.prototype, propertyName, propertyDescriptor);
+                }
+            }
+            for (p in ce2)
 				if (typeof (ce[p]) == 'undefined') ce[p] = ce2[p];
 			ce.$baseCtor = ce2;
 		}
